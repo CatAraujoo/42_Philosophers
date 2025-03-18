@@ -1,0 +1,183 @@
+Understanding the Problem (Conceptual Deep Dive)
+
+The Scenario:
+ - Imagine N philosophers sitting at a round table.
+ - Between each pair is one fork.
+ - To eat, a philosopher must hold both forks (left and right).
+ - Philosophers think, eat, then sleep, then repeat.
+The Challenge:
+ - Race conditions: Two threads accessing shared resources (forks) can lead to bugs.
+ - Deadlock: All philosophers pick up one fork, wait forever for the other — no one can eat.
+ - Starvation: A philosopher waits too long and dies because they didn’t get forks.
+ - Your code must handle timing, synchronization, and output clarity.
+
+Detailed Step-by-Step Implementation Plan
+
+1. Parsing Arguments
+You need to handle these arguments:
+
+./philo number_of_philosophers time_to_die time_to_eat time_to_sleep [meals_required]
+
+Things to handle:
+ - Ensure arguments are positive integers.
+ - Handle optional meals_required gracefully — set it to -1 if not provided.
+ example:
+ int parse_args(int argc, char **argv, t_data *data) 
+ {
+    if (argc < 5 || argc > 6)
+        return (error_msg("Invalid number of arguments"));
+
+    data->number_of_philosophers = ft_atoi(argv[1]);
+    data->time_to_die = ft_atoi(argv[2]);
+    data->time_to_eat = ft_atoi(argv[3]);
+    data->time_to_sleep = ft_atoi(argv[4]);
+    data->meals_required = (argc == 6) ? ft_atoi(argv[5]) : -1;
+
+    // Add validation checks here...
+    return (0);
+}
+
+2. Initialize Structures
+a. Forks (mutexes):
+Each fork is a pthread_mutex_t, shared between two philosophers.
+
+pthread_mutex_t *forks = malloc(sizeof(pthread_mutex_t) * N);
+for (int i = 0; i < N; i++)
+    pthread_mutex_init(&forks[i], NULL);
+
+b. Philosopher Struct:
+Each philosopher stores:
+
+ - Their id, left_fork, right_fork.
+ - Number of meals eaten.
+ - last_meal_time (to track starvation).
+ - Pointer to shared data.
+ 
+ 3. Time Handling
+Why it matters:
+ - You must detect death accurately.
+ - System functions like usleep can oversleep slightly.
+Use:
+ - gettimeofday() or clock_gettime() to get current time in ms.
+ - Create a custom sleep function:
+
+void precise_sleep(long time_ms) {
+    long start = current_time();
+    while ((current_time() - start) < time_ms)
+        usleep(100);  // Sleep in small intervals to be accurate
+}
+
+4. Philosopher Lifecycle (Thread Function)
+Each philosopher thread loops:
+1 - Take forks:
+ - Lock mutexes in specific order to avoid deadlock.
+2 - Eat:
+ - Record last_meal_time.
+ - Sleep for time_to_eat ms.
+ - Increment meals_eaten.
+3 - Put down forks.
+4 - Sleep for time_to_sleep ms.
+5 - Think.
+
+Pseudocode:
+
+void *philosopher_thread(void *arg) {
+    t_philosopher *philo = (t_philosopher *)arg;
+
+    if (philo->id % 2 == 0)
+        usleep(100);  // Stagger start for even IDs to reduce contention
+
+    while (!death_flag) {
+        take_forks(philo);
+        eat(philo);
+        release_forks(philo);
+        sleep(philo);
+        think(philo);
+    }
+    return NULL;
+}
+
+5. Fork Acquisition (Deadlock Prevention)
+Problem:
+If all philosophers pick up the left fork first, deadlock can happen.
+
+Solution Options:
+ - Ordered Locking: Odd philosophers pick left then right, even pick right then left.
+ - Semaphore Approach (Bonus): Limit number of philosophers eating at once.
+ - Waiter (Bonus): Central controller allows only N-1 to try eating.
+Example:
+
+void take_forks(t_philosopher *philo) {
+    if (philo->id % 2 == 0) {
+        pthread_mutex_lock(philo->right_fork);
+        print_status(philo, "has taken a fork");
+        pthread_mutex_lock(philo->left_fork);
+        print_status(philo, "has taken a fork");
+    } else {
+        pthread_mutex_lock(philo->left_fork);
+        print_status(philo, "has taken a fork");
+        pthread_mutex_lock(philo->right_fork);
+        print_status(philo, "has taken a fork");
+    }
+}
+
+6. Eating and Death Detection
+Eat:
+ - Record last_meal_time with mutex protection.
+ - Print status: is eating.
+ - Call precise_sleep(time_to_eat).
+Death Detection:
+ - A monitor thread (or loop in main) regularly checks:
+	current_time - philo->last_meal_time > time_to_die
+
+If true:
+ - Set death_flag.
+ - Print death message.
+ - Exit all threads.
+ 
+ Monitor Example:
+ void *monitor(void *arg) {
+    t_data *data = (t_data *)arg;
+
+    while (!data->death_flag) {
+        for (int i = 0; i < data->number_of_philosophers; i++) {
+            long now = current_time();
+            long diff = now - data->philosophers[i].last_meal_time;
+
+            if (diff > data->time_to_die) {
+                pthread_mutex_lock(&data->print_mutex);
+                printf("%ld %d died\n", now - data->start_time, data->philosophers[i].id);
+                data->death_flag = 1;
+                pthread_mutex_unlock(&data->print_mutex);
+                return NULL;
+            }
+        }
+        usleep(1000);  // Check every 1ms
+    }
+    return NULL;
+}
+
+7. Output Synchronization
+ - Multiple threads print at the same time? Messy output.
+ - Use print_mutex:
+
+	pthread_mutex_lock(&data->print_mutex);
+	printf("%ld %d is eating\n", timestamp, philo->id);
+	pthread_mutex_unlock(&data->print_mutex);
+
+8. Graceful Shutdown
+ - Join all philosopher threads:
+for (int i = 0; i < N; i++)
+    pthread_join(philosophers[i].thread, NULL);
+
+ - Destroy all mutexes:
+for (int i = 0; i < N; i++)
+    pthread_mutex_destroy(&forks[i]);
+pthread_mutex_destroy(&print_mutex);
+
+Testing Your Code
+Test with:
+ - 1 philosopher: should pick up one fork and die.
+ - 2 philosophers: should alternate eating.
+ - 5 philosophers, small time_to_die: ensure accurate timing.
+Stress test for memory leaks: use valgrind.
