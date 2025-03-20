@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: catarina <catarina@student.42.fr>          +#+  +:+       +#+        */
+/*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/17 13:41:48 by catarina          #+#    #+#             */
-/*   Updated: 2025/03/18 14:04:00 by catarina         ###   ########.fr       */
+/*   Updated: 2025/03/20 14:59:28 by cmatos-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,14 +17,32 @@ void	ft_error(char *error)
 	printf("%s\n", error);
 	exit (EXIT_FAILURE);
 }
+
 void	*safe_malloc(size_t bytes)
 {
 	void	*ret;
-	
+
 	ret = malloc(bytes);
 	if (!ret)
 		ft_error("Error allocating memory.");
 	return (ret);
+}
+
+long	get_time(t_time_code time_code)
+{
+	struct timeval	tv;
+	
+	if (gettimeofday(&tv, NULL))
+		ft_error("Gettimeofday failed.");
+	if (time_code == SECOND)
+		return (tv.tv_sec + (tv.tv_usec / 1000000));
+	else if (time_code)
+		return ((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
+	else if (time_code)
+		return ((tv.tv_sec * 1000000) + (tv.tv_usec / 1000000));
+	else
+		ft_error("Wrong input to gettime.");
+	return (0);
 }
 
 static void	handle_mutex_error(int status, t_code code) //recreating perror function
@@ -61,6 +79,7 @@ void	safe_mutex(t_mtx *mutex, t_code code)
 	else
 		ft_error("Wrong code for mutex handle.");
 }
+
 static void	handle_thread_error(int status, t_code code) //recreating perror function
 {
 	if (status == 0)
@@ -82,7 +101,7 @@ static void	handle_thread_error(int status, t_code code) //recreating perror fun
 }
 
 //create, join, detach
-void	safe_thread(pthread_t *thread, void *(*foo)(void *),
+void	safe_thread(pthread_t *thread, void * (*foo)(void *),
 		void *data, t_code code)
 {
 	if (code == CREATE)
@@ -93,4 +112,21 @@ void	safe_thread(pthread_t *thread, void *(*foo)(void *),
 		handle_thread_error(pthread_detach(*thread), code);
 	else
 		ft_error("Wrong code for thread handle. Use CREATE, JOIN or DETACH.");
+}
+
+void	ft_free(t_table *table)
+{
+	t_philo *philo;
+	int	i;
+
+	i = -1;
+	while (++i < table->n_philo)
+	{
+		philo = table->philos + 1;
+		safe_mutex(&philo->philo_mutex, DESTROY);
+	}
+	safe_mutex(&table->write_mutex, DESTROY);
+	safe_mutex(&table->table_mutex, DESTROY);
+	free(table->forks);
+	free(table->philos);
 }
