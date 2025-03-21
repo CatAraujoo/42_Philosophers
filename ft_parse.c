@@ -6,7 +6,7 @@
 /*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/17 11:26:23 by catarina          #+#    #+#             */
-/*   Updated: 2025/03/20 15:19:10 by cmatos-a         ###   ########.fr       */
+/*   Updated: 2025/03/21 10:22:46 by cmatos-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,9 +22,9 @@ static int	ft_is_space(char c)
 
 static int	ft_is_digit(char c)
 {
-	if (c < '0' && c > '9')
-		return (0);
-	return (1);
+	if (c >= '0' && c <= '9')
+		return (1);
+	return (0);
 }
 
 //check for negatives, check if legit number ex: +77#$%, check for int_max, check for len
@@ -36,19 +36,23 @@ static char	*valid_input(char *str)
 	
 	len = 0;
 	i = 0;
-	while (ft_is_space(str[i]) == 0)
+	while (str[i])
+	{
+		while (ft_is_space(str[i]) == 0)
+			i++;
+		if (str[i] == '+')
+			i++;
+		else if (str[i] == '-')
+			ft_error("Only positive numbers allowed.");
+		if (ft_is_digit(str[i]) == 0)
+			ft_error("The input is not a digit.");
+		nbr = str;
+		if (ft_is_digit(str[i]) == 1)
+			len++;
+		if (len > 10)
+			ft_error("The value is too big.");
 		i++;
-	if (str[i] == '+')
-		i++;
-	else if (str[i] == '-')
-		ft_error("Only positive numbers allowed.");
-	if (ft_is_digit(str[i]) == 0)
-		ft_error("The input is not a digit.");
-	nbr = str;
-	while (ft_is_digit(str[i++]))
-		len++;
-	if (len > 10)
-		ft_error("The value is too big.");
+	}
 	return (nbr);
 }
 

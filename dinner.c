@@ -6,7 +6,7 @@
 /*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/19 13:27:53 by cmatos-a          #+#    #+#             */
-/*   Updated: 2025/03/20 14:54:48 by cmatos-a         ###   ########.fr       */
+/*   Updated: 2025/03/21 14:09:50 by cmatos-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,8 @@ void	*dinner_simulation(void *data)
 	//increase a table variable counter, with all threads running
 	increase_long(&philo->table->table_mutex, &philo->table->n_threads_run);
 	
-	//set last meal time
+	//desynchronizing philos
+	de_synchronize_philos(philo);
 
 	while (!get_bool(&philo->table->table_mutex, &philo->table->end_t))
 	{
@@ -55,38 +56,41 @@ void	*dinner_simulation(void *data)
 			break ;
 		ft_eat(philo);
 		write_status(SLEEPING, philo);
-		usleep(200);
+		precise_usleep(philo->table->time_to_sleep, philo->table);
 		//ft_sleeping(philo);
-		ft_thinking(philo);
+		ft_thinking(philo, false);
 	}
-	return (0);//check if correct
+	return (NULL);
 }
 
 void	dinner_start(t_table *table)
 {
 	int	i;
 	
-	i = -1;
+	i = 0;
 	if (table->n_limit_meal == 0)
 		return ; // back to main, clean
 	else if (table->n_philo == 1)
 		safe_thread(&table->philos[0].thread_id, lone_philo, &table->philos[0], CREATE);
 	else
 	{
-		while (++i < table->n_philo)
+		while (i < table->n_philo)
+		{
 			safe_thread(&table->philos[i].thread_id, dinner_simulation,
 				&table->philos[i], CREATE);
+			i++;
+		}
 	}
 	//monitor
-	safe_thread(&table->monitor, (void *)monitor_dinner, table, CREATE);
+	safe_thread(&table->monitor, monitor_dinner, table, CREATE);
 	
 	//start simulation
 	table->start_t = get_time(MILLISECOND);
 	set_bool(&table->table_mutex, &table->all_threads_ready, true);
 	//wait for everyone
-	i = -1;
-	while (++i < table->n_philo)
-	safe_thread(&table->philos[i].thread_id, NULL, NULL, JOIN);
+	i = 0;
+	while (i < table->n_philo)
+		safe_thread(&table->philos[i++].thread_id, NULL, NULL, JOIN);
 	//if we manage to reach this line, all philos are full.
 	set_bool(&table->table_mutex, &table->end_t, true);
 	safe_thread(&table->monitor, NULL, NULL, JOIN);
@@ -106,7 +110,7 @@ void	*lone_philo(void *arg)
 	return (NULL);
 }
 
-void	monitor_dinner(void *data)
+void	*monitor_dinner(void *data)
 {
 	t_table *table;
 	int	i;
@@ -128,4 +132,5 @@ void	monitor_dinner(void *data)
 				}
 			}
 		}
+	return (NULL);
 }

@@ -6,7 +6,7 @@
 /*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/17 13:41:48 by catarina          #+#    #+#             */
-/*   Updated: 2025/03/20 14:59:28 by cmatos-a         ###   ########.fr       */
+/*   Updated: 2025/03/21 14:16:24 by cmatos-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ long	get_time(t_time_code time_code)
 
 static void	handle_mutex_error(int status, t_code code) //recreating perror function
 {
-	if (status == 0)
+	/*if (status == 0)
 		return ;
 	if (status == EINVAL && (code == LOCK || code == UNLOCK))
 		ft_error("The value specified by mutex is invalid.");
@@ -62,7 +62,13 @@ static void	handle_mutex_error(int status, t_code code) //recreating perror func
 		ft_error
 		("The process annot allocate enough memory to create another mutex.");
 	else if (status == EBUSY)
-		ft_error("Mutex is locked.");
+		ft_error("Mutex is locked.");*/
+	if (status != 0 && (code == LOCK || code == UNLOCK 
+			|| code == INIT || code == DESTROY))
+	{
+		ft_error("Mutex error.");
+		return ;
+	}
 }
 
 //init, destroy, lock, unlock
@@ -82,7 +88,7 @@ void	safe_mutex(t_mtx *mutex, t_code code)
 
 static void	handle_thread_error(int status, t_code code) //recreating perror function
 {
-	if (status == 0)
+	/*if (status == 0)
 		return ;
 	if (status == EAGAIN)
 		ft_error("No resources to create another thread.");
@@ -97,7 +103,12 @@ static void	handle_thread_error(int status, t_code code) //recreating perror fun
 		("No thread found corresponding.");
 	else if (status == EDEADLK)
 		ft_error
-		("A deadlock was detected or the value of thread specifies the calling thread."); //too big
+		("A deadlock was detected or the value of thread specifies the calling thread."); //too big*/
+	if (status != 0  && (code == CREATE || code == JOIN || code == DETACH))
+	{
+		ft_error("Thread error");
+		return ;
+	}
 }
 
 //create, join, detach

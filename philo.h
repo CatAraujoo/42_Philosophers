@@ -6,7 +6,7 @@
 /*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/17 11:44:14 by catarina          #+#    #+#             */
-/*   Updated: 2025/03/20 14:59:43 by cmatos-a         ###   ########.fr       */
+/*   Updated: 2025/03/21 12:03:47 by cmatos-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,13 +136,16 @@ long	get_long(t_mtx *mutex, long *value);
 bool	all_threads_running(t_mtx *mutex, long *threads, long philo_nbr);
 void	increase_long(t_mtx *mutex, long *value);
 
-void	monitor_dinner(void *data);
+void	*monitor_dinner(void *data);
 void	write_status(t_actions action, t_philo *philo);
 void	*lone_philo(void *arg);
 
+void	precise_usleep(long usec, t_table *table);
 void	ft_free(t_table *table);
+void	de_synchronize_philos(t_philo *philo);
 
 void	ft_eat(t_philo *philo);
-void	ft_thinking(t_philo *philo);
+void	ft_thinking(t_philo *philo, bool value);
+void	ft_sleeping(t_philo *philo);
 
 #endif

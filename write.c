@@ -6,7 +6,7 @@
 /*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/19 14:27:29 by cmatos-a          #+#    #+#             */
-/*   Updated: 2025/03/20 14:05:45 by cmatos-a         ###   ########.fr       */
+/*   Updated: 2025/03/21 11:29:18 by cmatos-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ void	write_status(t_actions action, t_philo *philo)
 
 	elapsed = get_time(MILLISECOND);
 	if (philo->philo_full)
-	return ;
+		return ;
 	safe_mutex(&philo->table->write_mutex, LOCK);
 
 	if ((philo->status == FORK_L || philo->status == FORK_R)
