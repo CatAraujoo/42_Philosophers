@@ -6,7 +6,7 @@
 /*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/19 13:27:53 by cmatos-a          #+#    #+#             */
-/*   Updated: 2025/03/21 14:09:50 by cmatos-a         ###   ########.fr       */
+/*   Updated: 2025/03/24 15:12:56 by cmatos-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ static bool	philo_died(t_philo *philo)
 	if (get_bool(&philo->philo_mutex, &philo->philo_full))
 		return (false);
 	elapsed = get_time(MILLISECOND) - get_long(&philo->philo_mutex, &philo->last_meal_t);
-	if (elapsed > (philo->table->time_to_die / 1000))
+	if (elapsed > philo->table->time_to_die) // Ensure time_to_die is in milliseconds
 		return (true);
 	return (false);
 }
@@ -39,17 +39,10 @@ void	*dinner_simulation(void *data)
 	bool	simulation_finished(t_table *table);
 	philo = (t_philo *)data;
 	wait_all_threads(philo->table);
-
-	//set time last meal
 	set_long(&philo->philo_mutex, &philo->last_meal_t, get_time(MILLISECOND));
-	
-	//synchro with monitor
 	//increase a table variable counter, with all threads running
-	increase_long(&philo->table->table_mutex, &philo->table->n_threads_run);
-	
-	//desynchronizing philos
+	active_threads_count(&philo->table->table_mutex, &philo->table->n_threads_run);
 	de_synchronize_philos(philo);
-
 	while (!get_bool(&philo->table->table_mutex, &philo->table->end_t))
 	{
 		if (philo->philo_full)
@@ -66,28 +59,24 @@ void	*dinner_simulation(void *data)
 void	dinner_start(t_table *table)
 {
 	int	i;
-	
+
 	i = 0;
 	if (table->n_limit_meal == 0)
-		return ; // back to main, clean
+		return ;
 	else if (table->n_philo == 1)
 		safe_thread(&table->philos[0].thread_id, lone_philo, &table->philos[0], CREATE);
 	else
 	{
 		while (i < table->n_philo)
 		{
-			safe_thread(&table->philos[i].thread_id, dinner_simulation,
-				&table->philos[i], CREATE);
+			safe_thread(&table->philos[i].thread_id,
+				dinner_simulation, &table->philos[i], CREATE);
 			i++;
 		}
 	}
-	//monitor
 	safe_thread(&table->monitor, monitor_dinner, table, CREATE);
-	
-	//start simulation
 	table->start_t = get_time(MILLISECOND);
 	set_bool(&table->table_mutex, &table->all_threads_ready, true);
-	//wait for everyone
 	i = 0;
 	while (i < table->n_philo)
 		safe_thread(&table->philos[i++].thread_id, NULL, NULL, JOIN);
@@ -102,35 +91,45 @@ void	*lone_philo(void *arg)
 
 	philo = (t_philo *)arg;
 	wait_all_threads(philo->table);
-	set_long(&philo->philo_mutex, &philo->last_meal_t, get_time(MILLISECOND));
-	increase_long(&philo->table->table_mutex, &philo->table->n_threads_run);
+	set_long(&philo->philo_mutex, &philo->last_meal_t, get_time(MILLISECOND));//last meal time gets current time
+	active_threads_count(&philo->table->table_mutex, &philo->table->n_threads_run);
 	write_status(FORK_L, philo);
 	while (!get_bool(&philo->table->table_mutex, &philo->table->end_t))
-		usleep(200);
+		precise_usleep(200, philo->table);
 	return (NULL);
 }
 
-void	*monitor_dinner(void *data)
+void	*monitor_dinner(void *data)//death_affirm: affirm a death, update `end_time` and print the status
 {
 	t_table *table;
 	int	i;
+	
 	table = (t_table *)data;
 	//make sure all philos running
 	//spinlock until all threads run
-	while (!all_threads_running(&table->table_mutex,
-		&table->n_threads_run, table->n_philo))
-		;
+	while (!all_threads_running(&table->table_mutex, &table->n_threads_run, table->n_philo))
+	{
 		while (!get_bool(&table->table_mutex, &table->end_t))
 		{
-			i = -1;
-			while (++i < table->n_philo)
+			i = 0;
+			while (i < table->n_philo && !get_bool(&table->table_mutex, &table->end_t))
 			{
-				if (philo_died(table->philos + i) && !get_bool(&table->table_mutex, &table->end_t))
+				if (philo_died(table->philos + i))
 				{
 					set_bool(&table->table_mutex, &table->end_t, true);
 					write_status(DEATH, table->philos + i);
 				}
+				i++;
 			}
 		}
+	}
 	return (NULL);
+}
+
+void	de_synchronize_philos(t_philo *philo)
+{
+	if (philo->philo_id % 2 == 0)
+		precise_usleep(30000, philo->table);
+	else
+		ft_thinking(philo, true);
 }

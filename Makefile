@@ -6,13 +6,13 @@
 #    By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/19 15:09:22 by cmatos-a          #+#    #+#              #
-#    Updated: 2025/03/21 11:25:13 by cmatos-a         ###   ########.fr        #
+#    Updated: 2025/03/24 15:18:48 by cmatos-a         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = philo
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -g -fsanitize=thread
+CFLAGS = -Wall -Wextra -Werror -g #-fsanitize=thread
 
 SRC = philo.c \
 		dinner.c \

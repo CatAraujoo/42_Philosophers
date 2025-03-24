@@ -6,7 +6,7 @@
 /*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/19 14:03:36 by cmatos-a          #+#    #+#             */
-/*   Updated: 2025/03/21 11:36:53 by cmatos-a         ###   ########.fr       */
+/*   Updated: 2025/03/24 12:02:21 by cmatos-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,23 +54,9 @@ bool	all_threads_running(t_mtx *mutex, long *threads, long philo_nbr)
 }
 //increase threads running
 //to synchro with the monitor
-void	increase_long(t_mtx *mutex, long *value)
+void	active_threads_count(t_mtx *mutex, long *value)
 {
 	safe_mutex(mutex, LOCK);
 	(*value)++;
 	safe_mutex(mutex, UNLOCK);
-}
-
-void	de_synchronize_philos(t_philo *philo)
-{
-	if (philo->table->n_philo % 2 == 0)
-	{
-		if (philo->philo_id % 2 == 0)
-			precise_usleep(30000, philo->table);
-	}
-	else
-	{
-		if (philo->philo_id % 2)
-			ft_thinking(philo, true);
-	}
 }

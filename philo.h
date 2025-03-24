@@ -6,7 +6,7 @@
 /*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/17 11:44:14 by catarina          #+#    #+#             */
-/*   Updated: 2025/03/21 12:03:47 by cmatos-a         ###   ########.fr       */
+/*   Updated: 2025/03/24 14:57:02 by cmatos-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,12 +23,7 @@
 # include <errno.h>
 
 typedef pthread_mutex_t	t_mtx;
-
-typedef struct s_forks
-{
-	t_mtx	fork;
-	int		fork_id;
-}			t_fork;
+typedef struct s_table	t_table;
 
 typedef enum e_code
 {
@@ -59,11 +54,14 @@ typedef enum e_time_code
 	MICROSECOND,
 }			t_time_code;
 
-typedef struct s_table	t_table;
+typedef struct s_forks
+{
+	t_mtx	fork;
+	int		fork_id;
+}			t_fork;
 
 typedef struct s_philo
 {
-	//t_data		*data;
 	int			philo_id;
 	int			philo_eat;
 	long		meals;
@@ -134,7 +132,7 @@ void	set_long(t_mtx *mutex, long *dest, long value);
 long	get_long(t_mtx *mutex, long *value);
 
 bool	all_threads_running(t_mtx *mutex, long *threads, long philo_nbr);
-void	increase_long(t_mtx *mutex, long *value);
+void	active_threads_count(t_mtx *mutex, long *value);
 
 void	*monitor_dinner(void *data);
 void	write_status(t_actions action, t_philo *philo);
@@ -146,6 +144,5 @@ void	de_synchronize_philos(t_philo *philo);
 
 void	ft_eat(t_philo *philo);
 void	ft_thinking(t_philo *philo, bool value);
-void	ft_sleeping(t_philo *philo);
 
 #endif
