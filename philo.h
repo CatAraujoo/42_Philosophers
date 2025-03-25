@@ -6,7 +6,7 @@
 /*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/17 11:44:14 by catarina          #+#    #+#             */
-/*   Updated: 2025/03/24 14:57:02 by cmatos-a         ###   ########.fr       */
+/*   Updated: 2025/03/25 14:00:44 by cmatos-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,7 +113,7 @@ typedef struct s_table
 }					t_data;*/
 
 void	handle_input(t_table *table, char **av);
-void	safe_thread(pthread_t *thread, void * (*foo)(void *),
+void	safe_thread(pthread_t *thread, void *(*foo)(void *),
 			void *data, t_code code);
 void	safe_mutex(t_mtx *mutex, t_code code);
 void	ft_error(char *error);
@@ -141,6 +141,7 @@ void	*lone_philo(void *arg);
 void	precise_usleep(long usec, t_table *table);
 void	ft_free(t_table *table);
 void	de_synchronize_philos(t_philo *philo);
+bool	philo_died(t_philo *philo);
 
 void	ft_eat(t_philo *philo);
 void	ft_thinking(t_philo *philo, bool value);

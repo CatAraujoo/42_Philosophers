@@ -6,7 +6,7 @@
 /*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/17 11:26:23 by catarina          #+#    #+#             */
-/*   Updated: 2025/03/24 13:58:56 by cmatos-a         ###   ########.fr       */
+/*   Updated: 2025/03/25 14:02:13 by cmatos-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ static long	ft_atol(char *s)
 	long		res;
 
 	res = 0;
-	while ((*s == '+'|| *s == 32 || (*s >= 9 && *s <= 13)))
+	while ((*s == '+' || *s == 32 || (*s >= 9 && *s <= 13)))
 		s++;
 	if (*s == '-')
 		return (-1);
@@ -46,10 +46,9 @@ static long	valid_input(char *str)
 		if (input < 0)
 			ft_error("Input Error: Positive values only.");
 		else
-			ft_error("Input Error: If the limit meals arg exists, should be above 0.");
+			ft_error("Input Error: If limit meals exists, should be above 0.");
 		exit(EXIT_FAILURE);
 	}
-	
 	return (input);
 }
 

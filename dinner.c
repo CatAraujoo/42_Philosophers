@@ -6,7 +6,7 @@
 /*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/19 13:27:53 by cmatos-a          #+#    #+#             */
-/*   Updated: 2025/03/24 15:12:56 by cmatos-a         ###   ########.fr       */
+/*   Updated: 2025/03/25 17:55:03 by cmatos-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,13 +21,14 @@ pthread_creat -> phio starts running!
 every philo start simultaneously
 4 join everyone*/
 
-static bool	philo_died(t_philo *philo)
+bool	philo_died(t_philo *philo)
 {
 	long	elapsed;
-
-	if (get_bool(&philo->philo_mutex, &philo->philo_full))
-		return (false);
-	elapsed = get_time(MILLISECOND) - get_long(&philo->philo_mutex, &philo->last_meal_t);
+	
+	if (get_bool(&philo->philo_mutex, &philo->philo_full) == true)
+		return (true);
+	elapsed = get_time(MILLISECOND) - get_long(&philo->philo_mutex,
+		&philo->last_meal_t);
 	if (elapsed > philo->table->time_to_die) // Ensure time_to_die is in milliseconds
 		return (true);
 	return (false);
@@ -50,7 +51,6 @@ void	*dinner_simulation(void *data)
 		ft_eat(philo);
 		write_status(SLEEPING, philo);
 		precise_usleep(philo->table->time_to_sleep, philo->table);
-		//ft_sleeping(philo);
 		ft_thinking(philo, false);
 	}
 	return (NULL);
@@ -63,14 +63,14 @@ void	dinner_start(t_table *table)
 	i = 0;
 	if (table->n_limit_meal == 0)
 		return ;
-	else if (table->n_philo == 1)
+	else if (table->n_philo == 1)	
 		safe_thread(&table->philos[0].thread_id, lone_philo, &table->philos[0], CREATE);
 	else
 	{
 		while (i < table->n_philo)
 		{
-			safe_thread(&table->philos[i].thread_id,
-				dinner_simulation, &table->philos[i], CREATE);
+			safe_thread(&table->philos[i].thread_id, dinner_simulation,
+				&table->philos[i], CREATE);
 			i++;
 		}
 	}
@@ -88,48 +88,46 @@ void	dinner_start(t_table *table)
 void	*lone_philo(void *arg)
 {
 	t_philo *philo;
+	long	current_t;
 
 	philo = (t_philo *)arg;
 	wait_all_threads(philo->table);
-	set_long(&philo->philo_mutex, &philo->last_meal_t, get_time(MILLISECOND));//last meal time gets current time
+	current_t = get_time(MILLISECOND);
+	set_long(&philo->philo_mutex, &philo->last_meal_t, current_t);//last meal time gets current time
+	safe_mutex(&philo->table->table_mutex, LOCK);
 	active_threads_count(&philo->table->table_mutex, &philo->table->n_threads_run);
+	safe_mutex(&philo->table->table_mutex, UNLOCK);
 	write_status(FORK_L, philo);
-	while (!get_bool(&philo->table->table_mutex, &philo->table->end_t))
-		precise_usleep(200, philo->table);
+	while (!philo->table->end_t)
+		precise_usleep(philo->table->time_to_die, philo->table);//??
 	return (NULL);
 }
 
-void	*monitor_dinner(void *data)//death_affirm: affirm a death, update `end_time` and print the status
+void	*monitor_dinner(void *data)
 {
-	t_table *table;
-	int	i;
-	
+	t_table	*table;
+	int		i;
+
 	table = (t_table *)data;
-	//make sure all philos running
-	//spinlock until all threads run
 	while (!all_threads_running(&table->table_mutex, &table->n_threads_run, table->n_philo))
+		;
+	while (!get_bool(&table->table_mutex, &table->end_t))
 	{
-		while (!get_bool(&table->table_mutex, &table->end_t))
+		i = 0;
+		while (i++ < table->n_philo && !get_bool(&table->table_mutex, &table->end_t))
 		{
-			i = 0;
-			while (i < table->n_philo && !get_bool(&table->table_mutex, &table->end_t))
+			if (philo_died(table->philos + i) == true)//check_time_left
 			{
-				if (philo_died(table->philos + i))
-				{
-					set_bool(&table->table_mutex, &table->end_t, true);
-					write_status(DEATH, table->philos + i);
-				}
-				i++;
+				set_bool(&table->table_mutex, &table->end_t, true);
+				write_status(DEATH, table->philos + i);
+			}
+			usleep(50);
+			if (get_long(&table->table_mutex, &table->n_philos_full) >= get_long(&table->table_mutex, &table->n_philo))
+			{
+				set_bool(&table->table_mutex, &table->philos->philo_full, true);
+				set_bool(&table->table_mutex, &table->end_t, true);
 			}
 		}
 	}
 	return (NULL);
-}
-
-void	de_synchronize_philos(t_philo *philo)
-{
-	if (philo->philo_id % 2 == 0)
-		precise_usleep(30000, philo->table);
-	else
-		ft_thinking(philo, true);
 }

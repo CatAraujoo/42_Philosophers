@@ -6,7 +6,7 @@
 /*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/19 14:26:23 by cmatos-a          #+#    #+#             */
-/*   Updated: 2025/03/24 14:56:42 by cmatos-a         ###   ########.fr       */
+/*   Updated: 2025/03/25 17:54:17 by cmatos-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ void	ft_eat(t_philo *philo)
 	precise_usleep(philo->table->time_to_eat, philo->table);
 	if (philo->table->n_limit_meal > 0 && philo->meals == philo->table->n_limit_meal)
 		set_bool(&philo->philo_mutex, &philo->philo_full, true);
+	write_status(EATING, philo);
 	safe_mutex(&philo->fork_l->fork, UNLOCK);
 	safe_mutex(&philo->fork_r->fork, UNLOCK);
 }
@@ -37,7 +38,6 @@ void	ft_thinking(t_philo *philo, bool value)
 	long	t_eat;
 	long	t_think;
 	long	t_sleep;
-//if even the system is fair
 	if (!value)
 		write_status(THINKING, philo);
 	if (philo->table->n_philo % 2 == 0)
@@ -48,5 +48,5 @@ void	ft_thinking(t_philo *philo, bool value)
 	t_think = t_eat * 2 - t_sleep;//available time to think
 	if (t_think < 0)
 		t_think = 0;
-	precise_usleep(t_think * 0.3, philo->table); // Replace 0.3 with a named constant
+	precise_usleep(t_think * 0.5, philo->table); // Replace 0.3 with a named constant
 }
