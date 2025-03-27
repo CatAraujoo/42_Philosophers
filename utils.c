@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
+/*   By: catarina <catarina@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/17 13:41:48 by catarina          #+#    #+#             */
-/*   Updated: 2025/03/25 16:13:06 by cmatos-a         ###   ########.fr       */
+/*   Updated: 2025/03/26 14:33:00 by catarina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,12 +45,17 @@ long	get_time(t_time_code time_code)
 		return ((tv.tv_sec * 1000000) + (tv.tv_usec));
 	else if (time_code == SECOND)
 		return (tv.tv_sec);
-	else
-	{
-		ft_error("Invalid time_code provided to get_time.");
-		return (1);
-	}
-	return (-1);
+	ft_error("Invalid time_code provided to get_time.");
+	return (0);
+}
+
+bool	end_dinner(t_table *table, t_philo *philo, t_end code)
+{
+	if (code == FULL)
+		return (get_bool(&philo->philo_mutex, &philo->philo_full));
+	else if (code == MEAL_END)
+		return (get_bool(&table->table_mutex, &table->end_t));
+	return (false);
 }
 
 void	ft_free(t_table *table)

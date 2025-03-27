@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_parse.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
+/*   By: catarina <catarina@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/17 11:26:23 by catarina          #+#    #+#             */
-/*   Updated: 2025/03/25 14:02:13 by cmatos-a         ###   ########.fr       */
+/*   Updated: 2025/03/26 11:53:14 by catarina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ void	handle_input(t_table *table, char **av)
 	table->time_to_die = valid_input(av[2]) * 1000; // *1000 to convert to milliseconds
 	table->time_to_eat = valid_input(av[3]) * 1000;
 	table->time_to_sleep = valid_input(av[4]) * 1000;
-	if (table->time_to_die < 60000// 60ms 
+	if (table->time_to_die < 60000
 		|| table->time_to_eat < 60000
 		|| table->time_to_sleep < 60000)
 	{

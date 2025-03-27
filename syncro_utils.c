@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   syncro_utils.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
+/*   By: catarina <catarina@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/19 14:03:36 by cmatos-a          #+#    #+#             */
-/*   Updated: 2025/03/25 16:19:41 by cmatos-a         ###   ########.fr       */
+/*   Updated: 2025/03/26 14:44:41 by catarina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ void	precise_usleep(long usec, t_table *table)
 	start = get_time(MICROSECOND);
 	while (get_time(MICROSECOND) - start < usec)
 	{
-		if (get_bool(&table->table_mutex, &table->all_threads_ready))//end_dinner?
+		if (end_dinner(table, NULL, MEAL_END))//end_dinner?
 			break ;
 		elapsed = get_time(MICROSECOND) - start;
 		rem = usec - elapsed;

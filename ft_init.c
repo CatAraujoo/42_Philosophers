@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_init.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
+/*   By: catarina <catarina@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/17 11:56:49 by catarina          #+#    #+#             */
-/*   Updated: 2025/03/25 17:52:05 by cmatos-a         ###   ########.fr       */
+/*   Updated: 2025/03/26 13:51:28 by catarina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,8 +46,12 @@ static void	philo_init(t_table *table)
 		philo->meals = 0;
 		safe_mutex(&philo->philo_mutex, INIT);
 		philo->table = table;
+		philo->last_meal_t = get_time(MILLISECOND);
 		//printf ("%ld \n", philo->table->n_philo);
 		assign_forks(philo, philo->table->forks, i);
+		safe_mutex(&philo->fork_l->fork, INIT);
+		safe_mutex(&philo->fork_r->fork, INIT);
+		safe_mutex(&philo->philo_mutex, INIT);
 		i++;
 	}
 }
@@ -56,15 +60,19 @@ void	ft_init(t_table *table)
 {
 	int	i;
 
-	i = 0;
 	table->end_t = false;
-	table->start_t = get_time(MILLISECOND);
+	//table->start_t = get_time(MILLISECOND);
+	table->n_threads_run = 0;
+	table->start_t = 0;
+	table->n_philos_full = 0;
 	table->all_threads_ready = false;
 	table->n_threads_run = 0;
 	table->philos = safe_malloc(sizeof(t_philo) * table->n_philo);
+	table->forks = safe_malloc(sizeof(t_fork) * table->n_philo);
 	safe_mutex(&table->table_mutex, INIT);
 	safe_mutex(&table->write_mutex, INIT);
-	table->forks = safe_malloc(sizeof(t_fork) * table->n_philo);
+	//
+	i = 0;
 	while (i < table->n_philo)
 	{
 		//pthread_mutex_init(&table->forks[i].fork, NULL);//Initialize the mutex for each fork in the fork mutex array

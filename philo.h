@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
+/*   By: catarina <catarina@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/17 11:44:14 by catarina          #+#    #+#             */
-/*   Updated: 2025/03/25 14:00:44 by cmatos-a         ###   ########.fr       */
+/*   Updated: 2025/03/26 14:33:36 by catarina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,8 +44,13 @@ typedef enum e_actions
 	THINKING,
 	FORK_L,
 	FORK_R,
-	FULL,
 }			t_actions;
+
+typedef enum s_end
+{
+	FULL,
+	MEAL_END,
+}	t_end;
 
 typedef enum e_time_code
 {
@@ -125,6 +130,8 @@ void	wait_all_threads(t_table *table);
 long	get_time(t_time_code time_code);
 void	dinner_start(t_table *table);
 void	*dinner_simulation(void *data);
+bool	check_time_left(t_philo *philo);
+bool	end_dinner(t_table *table, t_philo *philo, t_end code);
 
 void	set_bool(t_mtx *mutex, bool *dest, bool value);
 bool	get_bool(t_mtx *mutex, bool *value);
