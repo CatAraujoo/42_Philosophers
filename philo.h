@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: catarina <catarina@student.42.fr>          +#+  +:+       +#+        */
+/*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/17 11:44:14 by catarina          #+#    #+#             */
-/*   Updated: 2025/03/26 14:33:36 by catarina         ###   ########.fr       */
+/*   Updated: 2025/03/27 15:08:53 by cmatos-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,17 +25,6 @@
 typedef pthread_mutex_t	t_mtx;
 typedef struct s_table	t_table;
 
-typedef enum e_code
-{
-	LOCK,
-	UNLOCK,
-	INIT,
-	DESTROY,
-	CREATE,
-	JOIN,
-	DETACH,
-}			t_code;
-
 typedef enum e_actions
 {
 	DEATH,
@@ -46,42 +35,33 @@ typedef enum e_actions
 	FORK_R,
 }			t_actions;
 
-typedef enum s_end
+enum e_forks
 {
-	FULL,
-	MEAL_END,
-}	t_end;
-
-typedef enum e_time_code
-{
-	SECOND,
-	MILLISECOND,
-	MICROSECOND,
-}			t_time_code;
-
-typedef struct s_forks
-{
-	t_mtx	fork;
-	int		fork_id;
-}			t_fork;
+	LEFT,
+	RIGHT,
+};
 
 typedef struct s_philo
 {
-	int			philo_id;
-	int			philo_eat;
-	long		meals;
-	long		last_meal_t; //time passed from last meal
-	bool		philo_full;
-	t_fork		*fork_r;
-	t_fork		*fork_l;
-	t_table		*table;
-	t_actions	status;
-	t_mtx		philo_mutex;
-	pthread_t	thread_id;	//a philo is a thread
+	struct s_table		*table;
+	long				philo_id;
+	long				meals;
+	long 				death_t; //time of death
+	//long		last_meal_t; //time passed from last meal
+	bool				philo_full;
+	t_actions			status;
+	t_mtx				lock;
+	t_mtx				*fork[2];
 }					t_philo;
 
 typedef struct s_table
 {
+	pthread_t	*threads; //array of all threads
+	t_philo		*philos; //array of all philos
+	t_mtx		*forks; //array of all forks
+	t_mtx		lock;//mutex for forks
+	t_mtx		log;//mutex for log
+	t_mtx		finish_lock;//mutex for finish
 	long		n_philo;
 	long		n_philos_full;
 	long		time_to_die;
@@ -89,68 +69,31 @@ typedef struct s_table
 	long		time_to_sleep;
 	long		n_limit_meal; //[5] | flag if -1
 	long		start_t;
-	long		n_threads_run;
+	/*long		n_threads_run;
+	bool		all_threads_ready;*/
 	bool		end_t; //a philo dies or all philos full
-	bool		all_threads_ready;
-	t_mtx		table_mutex; //avoid races while reading from table
-	t_mtx		write_mutex;
-	t_fork		*forks; //array of all forks
-	t_philo		*philos; //array of all philos
-	pthread_t	monitor;
 }			t_table;
 
-/*typedef struct s_data
-{
-	pthread_t		*table;
-	t_philo			*philos;
-	int				n_philos;
-	int				n_meals;
-	int				n_philos_full;
-	int				death_t;
-	int				eat_t;
-	int				sleep_t;
-	int				start_t;
-	bool			finish;
-	pthread_mutex_t	*forks;
-	pthread_mutex_t	lock;
-	pthread_mutex_t	log;
-	pthread_mutex_t	finish_lock;
-}					t_data;*/
-
-void	handle_input(t_table *table, char **av);
-void	safe_thread(pthread_t *thread, void *(*foo)(void *),
-			void *data, t_code code);
-void	safe_mutex(t_mtx *mutex, t_code code);
+int		handle_input(t_table *table, char **av);
 void	ft_error(char *error);
+void	ft_free(t_table *table);
 void	*safe_malloc(size_t bytes);
 
-void	ft_init(t_table *table);
-void	wait_all_threads(t_table *table);
+long	ft_atol(char *s);
+long	valid_input(char *str);
+t_table	*ft_init(int ac, char **av);
 
-long	get_time(t_time_code time_code);
-void	dinner_start(t_table *table);
+long	get_time(void);
+void	wait_time(t_philo *philo, long time);
+int	dinner_start(t_table *table);
 void	*dinner_simulation(void *data);
-bool	check_time_left(t_philo *philo);
-bool	end_dinner(t_table *table, t_philo *philo, t_end code);
 
-void	set_bool(t_mtx *mutex, bool *dest, bool value);
-bool	get_bool(t_mtx *mutex, bool *value);
-void	set_long(t_mtx *mutex, long *dest, long value);
-long	get_long(t_mtx *mutex, long *value);
-
-bool	all_threads_running(t_mtx *mutex, long *threads, long philo_nbr);
-void	active_threads_count(t_mtx *mutex, long *value);
-
-void	*monitor_dinner(void *data);
-void	write_status(t_actions action, t_philo *philo);
-void	*lone_philo(void *arg);
-
-void	precise_usleep(long usec, t_table *table);
-void	ft_free(t_table *table);
-void	de_synchronize_philos(t_philo *philo);
-bool	philo_died(t_philo *philo);
-
-void	ft_eat(t_philo *philo);
-void	ft_thinking(t_philo *philo, bool value);
+void	write_status(t_philo *philo, t_actions action);
+bool	is_solo(t_philo *philo);
+bool	is_dead(t_philo *philo);
+void	is_full(t_philo *philo);
+void	ft_thinking(t_philo *philo);
+void	ft_eating(t_philo *philo);
+void	ft_sleeping(t_philo *philo);
 
 #endif

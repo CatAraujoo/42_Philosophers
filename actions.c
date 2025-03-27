@@ -3,50 +3,70 @@
 /*                                                        :::      ::::::::   */
 /*   actions.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: catarina <catarina@student.42.fr>          +#+  +:+       +#+        */
+/*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/03/19 14:26:23 by cmatos-a          #+#    #+#             */
-/*   Updated: 2025/03/26 13:25:42 by catarina         ###   ########.fr       */
+/*   Created: 2025/03/27 11:00:59 by cmatos-a          #+#    #+#             */
+/*   Updated: 2025/03/27 15:31:03 by cmatos-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void	ft_eat(t_philo *philo)
+static bool	get_fork(t_philo *philo, int fork)
 {
-	safe_mutex(&philo->fork_l->fork, LOCK);
-	write_status(FORK_L, philo);
-	safe_mutex(&philo->fork_r->fork, LOCK);
-	write_status(FORK_R, philo);
-	set_long(&philo->philo_mutex, &philo->last_meal_t, get_time(MILLISECOND));
-	if (!get_time(MILLISECOND)) // Handle potential failure of get_time
+	pthread_mutex_lock(philo->fork[fork]);
+	if (is_dead(philo))
 	{
-		ft_free(philo->table);
-		return ;
+		pthread_mutex_unlock(philo->fork[fork]);
+		return (false);
 	}
-	philo->meals++;
-	precise_usleep(philo->table->time_to_eat, philo->table);
-	if (philo->table->n_limit_meal > 0 && philo->meals == philo->table->n_limit_meal)
-		set_bool(&philo->philo_mutex, &philo->philo_full, true);
-	write_status(EATING, philo);
-	safe_mutex(&philo->fork_l->fork, UNLOCK);
-	safe_mutex(&philo->fork_r->fork, UNLOCK);
+	write_status(philo, FORK_L);
+	return (true);
 }
 
-void	ft_thinking(t_philo *philo, bool value)
+static bool	get_forks(t_philo *philo)
 {
-	long	t_eat;
-	long	t_think;
-	long	t_sleep;
-	if (!value)
-		write_status(THINKING, philo);
-	if (philo->table->n_philo % 2 == 0)
+	if (!get_fork(philo, FORK_L))
+		return (false);
+	if (!get_fork(philo, FORK_R))
+	{
+		pthread_mutex_unlock(philo->fork[LEFT]);
+		return (false);
+	}
+	return (true);
+}
+
+void	ft_thinking(t_philo *philo)
+{
+	if (!is_dead(philo) && philo->status != THINKING)
+	{
+		philo->status = THINKING;
+		write_status(philo, THINKING);
+		wait_time(philo, 5);
+	}
+}
+
+void	ft_sleeping(t_philo *philo)
+{
+	if (!is_dead(philo) && philo->status != SLEEPING)
+	{
+		philo->status = SLEEPING;
+		write_status(philo, SLEEPING);
+		wait_time(philo, 5);
+	}
+}
+
+void	ft_eating(t_philo *philo)
+{
+	if (!get_forks(philo))
 		return ;
-	// Calculate available time to think for odd-numbered philosophers
-	t_eat = philo->table->time_to_eat;
-	t_sleep = philo->table->time_to_sleep;
-	t_think = t_eat * 2 - t_sleep;//available time to think
-	if (t_think < 0)
-		t_think = 0;
-	precise_usleep(t_think * 0.5, philo->table); // Replace 0.3 with a named constant
+	pthread_mutex_lock(&philo->table->lock);
+	philo->death_t = get_time() + philo->table->time_to_die;
+	pthread_mutex_unlock(&philo->table->lock);
+	philo->status = EATING;
+	write_status(philo, EATING);
+	philo->meals++;
+	wait_time(philo, philo->table->time_to_eat);
+	pthread_mutex_unlock(philo->fork[LEFT]);
+	pthread_mutex_unlock(philo->fork[RIGHT]);
 }

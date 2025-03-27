@@ -3,84 +3,109 @@
 /*                                                        :::      ::::::::   */
 /*   ft_init.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: catarina <catarina@student.42.fr>          +#+  +:+       +#+        */
+/*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/17 11:56:49 by catarina          #+#    #+#             */
-/*   Updated: 2025/03/26 13:51:28 by catarina         ###   ########.fr       */
+/*   Updated: 2025/03/27 15:38:46 by cmatos-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
-
-static void	assign_forks(t_philo *philo, t_fork *forks, int position)
+//the fork 0(philo-1) is from philo_id 1
+//every philo takes the left fork first
+//if odd first left, if even first right fork
+static void	assign_forks(t_table *table, t_mtx *forks, int pos)
 {
-	//the fork 0(philo-1) is from philo_id 1
-	//every philo takes the left fork first
-	//if odd first left, if even first right fork
-	int	philo_nbr;
-
-	philo_nbr = philo->table->n_philo;
-	if (philo->philo_id % 2 != 0) //If ph_id is odd
+	while (pos < table->n_philo - 1)
 	{
-		philo->fork_l = &forks[(position + 1) % philo_nbr];
-		philo->fork_r = &forks[position];
+		if (pos % 2)
+		{
+			table->philos[pos].fork[LEFT] = &forks[pos - 1];
+			table->philos[pos].fork[RIGHT] = &forks[pos];
+		}
+		else
+		{
+			table->philos[pos].fork[LEFT] = &forks[pos];
+			table->philos[pos].fork[RIGHT] = &forks[pos + 1];
+		}
+		pos++;
 	}
-	if (philo->philo_id % 2 == 0) //If phio_id is even, right and left forks are swapped to prevent deadlocks. See #1
+	if (pos % 2)
 	{
-		philo->fork_l = &forks[position];
-		philo->fork_r = &forks[(position + 1) % philo_nbr];
+		table->philos[pos].fork[LEFT] = &table->forks[pos - 1];
+		table->philos[pos].fork[RIGHT] = &table->forks[pos];
+	}
+	else
+	{
+		table->philos[pos].fork[LEFT] = &table->forks[pos];
+		table->philos[pos].fork[RIGHT] = &table->forks[0];
 	}
 }
 
 static void	philo_init(t_table *table)
 {
 	int		i;
-	t_philo	*philo;
 	
 	i = 0;
 	while (i < table->n_philo)
 	{
-		philo = table->philos + i;
-		philo->philo_id = i + 1;
-		philo->philo_full = false;
-		philo->meals = 0;
-		safe_mutex(&philo->philo_mutex, INIT);
-		philo->table = table;
-		philo->last_meal_t = get_time(MILLISECOND);
-		//printf ("%ld \n", philo->table->n_philo);
-		assign_forks(philo, philo->table->forks, i);
-		safe_mutex(&philo->fork_l->fork, INIT);
-		safe_mutex(&philo->fork_r->fork, INIT);
-		safe_mutex(&philo->philo_mutex, INIT);
+		table->philos[i].table = table;
+		table->philos[i].philo_id = i + 1;
+		table->philos[i].philo_full = false;
+		table->philos[i].meals = 0;
+		table->philos[i].status = THINKING;
+		//table->philos[i].last_meal_t = get_time();
+		pthread_mutex_init(&table->philos[i].lock, NULL);
+		//pthread_mutex_init(&table->philos[i].fork_l->fork, NULL);
+		//pthread_mutex_init(&table->philos[i].fork_r->fork, NULL);
 		i++;
 	}
+	assign_forks(table, table->forks, i);
 }
 
-void	ft_init(t_table *table)
+static t_table	*init_threads(t_table *table)
 {
 	int	i;
 
 	table->end_t = false;
-	//table->start_t = get_time(MILLISECOND);
-	table->n_threads_run = 0;
-	table->start_t = 0;
 	table->n_philos_full = 0;
-	table->all_threads_ready = false;
-	table->n_threads_run = 0;
-	table->philos = safe_malloc(sizeof(t_philo) * table->n_philo);
-	table->forks = safe_malloc(sizeof(t_fork) * table->n_philo);
-	safe_mutex(&table->table_mutex, INIT);
-	safe_mutex(&table->write_mutex, INIT);
-	//
+	table->threads = safe_malloc(sizeof(pthread_t) * table->n_philo);
+	table->forks = safe_malloc(sizeof(t_mtx) * table->n_philo);
+	pthread_mutex_init(&table->lock, NULL);
+	pthread_mutex_init(&table->log, NULL);
+	pthread_mutex_init(&table->finish_lock, NULL);
 	i = 0;
 	while (i < table->n_philo)
 	{
-		//pthread_mutex_init(&table->forks[i].fork, NULL);//Initialize the mutex for each fork in the fork mutex array
-		safe_mutex(&table->forks[i].fork, INIT);
-		table->forks[i].fork_id = i; // for each fork/mutex, set the fork_id value
+		pthread_mutex_init(&table->forks[i], NULL);
+		//table->forks[i].fork_id = i;
 		i++;
 	}
-	philo_init(table);//initialize
+	return(table);
 }
 
-
+t_table	*ft_init(int ac, char **av)
+{
+	t_table	*table;
+	
+	table = safe_malloc(sizeof(t_table));
+	table->n_philo = valid_input(av[1]);
+	table->time_to_die = valid_input(av[2]);
+	table->time_to_eat = valid_input(av[3]);
+	table->time_to_sleep = valid_input(av[4]);
+	if (ac == 6)
+		table->n_limit_meal = valid_input(av[5]);
+	else
+		table->n_limit_meal = -1;
+	if (!table->n_philo || !table->time_to_die
+		|| !table->time_to_eat || !table->time_to_sleep)
+	{
+		ft_free(table);
+		return (NULL);
+	}
+	table->start_t = 0;
+	table->philos = safe_malloc(sizeof(t_philo) * table->n_philo);
+	table = init_threads(table);
+	philo_init(table);
+	return (table);
+}

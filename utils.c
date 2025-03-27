@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: catarina <catarina@student.42.fr>          +#+  +:+       +#+        */
+/*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/03/17 13:41:48 by catarina          #+#    #+#             */
-/*   Updated: 2025/03/26 14:33:00 by catarina         ###   ########.fr       */
+/*   Created: 2025/03/27 11:31:55 by cmatos-a          #+#    #+#             */
+/*   Updated: 2025/03/27 15:28:05 by cmatos-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,62 +15,60 @@
 void	ft_error(char *error)
 {
 	printf("%s\n", error);
+	exit(EXIT_FAILURE);
 }
 
 void	*safe_malloc(size_t bytes)
 {
-	void	*ret;
+	void	*ptr;
 
-	ret = malloc(bytes);
-	if (!ret)
-	{
-		ft_error("Error allocating memory.");
-		exit(EXIT_FAILURE);
-	}
-	return (ret);
+	ptr = malloc(bytes);
+	if (!ptr)
+		ft_error("Error: Malloc failed");
+	return (ptr);
 }
 
-long	get_time(t_time_code time_code)
+void	wait_time(t_philo *philo, long time)//disapear??
 {
-	struct timeval	tv;
-
-	if (gettimeofday(&tv, NULL) != 0)
-	{
-		ft_error("Error. Gettimeofday failed.");
-		return (1);
-	}
-	if (time_code == MILLISECOND)
-		return (tv.tv_sec * 1000 + tv.tv_usec / 1000);
-	else if (time_code == MICROSECOND)
-		return ((tv.tv_sec * 1000000) + (tv.tv_usec));
-	else if (time_code == SECOND)
-		return (tv.tv_sec);
-	ft_error("Invalid time_code provided to get_time.");
-	return (0);
+	if ((get_time() + time) >= philo->table->time_to_die)
+		usleep((philo->table->time_to_die - get_time()) * 1000);
+	else
+		usleep(time * 1000);
 }
 
-bool	end_dinner(t_table *table, t_philo *philo, t_end code)
+long	get_time(void)
 {
-	if (code == FULL)
-		return (get_bool(&philo->philo_mutex, &philo->philo_full));
-	else if (code == MEAL_END)
-		return (get_bool(&table->table_mutex, &table->end_t));
-	return (false);
+	struct timeval	time;
+
+	if (gettimeofday(&time, NULL))
+	{
+		ft_error("Error: gettimeofday failed");
+		return (0);
+	}
+	return ((time.tv_sec * 1000) + (time.tv_usec / 1000));
 }
 
 void	ft_free(t_table *table)
 {
-	t_philo	*philo;
-	int		i;
+	long	i;
 
-	i = -1;
-	while (++i < table->n_philo)
+	if (!table)
+		return ;
+	i = 0;
+	while (i < table->n_philo)
 	{
-		philo = table->philos + i;
-		safe_mutex(&philo->philo_mutex, DESTROY);
+		pthread_mutex_destroy(&table->forks[i]);
+		pthread_mutex_destroy(&table->philos[i].lock);
+		i++;
 	}
-	safe_mutex(&table->write_mutex, DESTROY);
-	safe_mutex(&table->table_mutex, DESTROY);
-	free(table->forks);
-	free(table->philos);
+	pthread_mutex_destroy(&table->lock);
+	pthread_mutex_destroy(&table->log);
+	pthread_mutex_destroy(&table->finish_lock);
+	if (table->philos)
+		free(table->philos);
+	if (table->forks)
+		free(table->forks);
+	if (table->threads)
+		free(table->threads);
+	free(table);
 }

@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   ft_parse.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: catarina <catarina@student.42.fr>          +#+  +:+       +#+        */
+/*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/17 11:26:23 by catarina          #+#    #+#             */
-/*   Updated: 2025/03/26 11:53:14 by catarina         ###   ########.fr       */
+/*   Updated: 2025/03/27 14:31:49 by cmatos-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-static long	ft_atol(char *s)
+long	ft_atol(char *s)
 {
 	long		res;
 
@@ -31,7 +31,7 @@ static long	ft_atol(char *s)
 	return (res);
 }
 
-static long	valid_input(char *str)
+long	valid_input(char *str)
 {
 	long	input;
 
@@ -39,7 +39,7 @@ static long	valid_input(char *str)
 	if (input > INT_MAX) //If the result is greater than INT_MAX, print error and flag the error
 	{
 		ft_error("Input Error: The value cannot be bigger than INT_MAX");
-		exit(EXIT_FAILURE);
+		return (-1);
 	}
 	if (input < 1) //If not positive, print error and flag the error
 	{
@@ -47,30 +47,7 @@ static long	valid_input(char *str)
 			ft_error("Input Error: Positive values only.");
 		else
 			ft_error("Input Error: If limit meals exists, should be above 0.");
-		exit(EXIT_FAILURE);
+		return (-1);
 	}
 	return (input);
-}
-
-void	handle_input(t_table *table, char **av)
-{
-	//integers
-	// < int max
-	//timestamps > 60ms
-	//handle optional meals_required
-	table->n_philo = valid_input(av[1]);
-	table->time_to_die = valid_input(av[2]) * 1000; // *1000 to convert to milliseconds
-	table->time_to_eat = valid_input(av[3]) * 1000;
-	table->time_to_sleep = valid_input(av[4]) * 1000;
-	if (table->time_to_die < 60000
-		|| table->time_to_eat < 60000
-		|| table->time_to_sleep < 60000)
-	{
-		ft_error("The timestamps should be higher than 60ms.");
-		exit(EXIT_FAILURE);
-	}
-	if (av[5]) //check if there is arg 5
-		table->n_limit_meal = valid_input(av[5]);
-	else
-		table->n_limit_meal = -1; //if there is no av[5] initialize the variable in -1
 }
