@@ -6,7 +6,7 @@
 /*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/27 10:59:37 by cmatos-a          #+#    #+#             */
-/*   Updated: 2025/03/27 15:28:48 by cmatos-a         ###   ########.fr       */
+/*   Updated: 2025/03/28 14:52:50 by cmatos-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,9 @@ bool	is_solo(t_philo *philo)
 	if (philo->table->n_philo == 1)
 	{
 		pthread_mutex_lock(philo->fork[RIGHT]);
-		write_status(philo, FORK_R);
+		write_status(philo, FORK);
+		usleep(philo->table->time_to_die * 100);
 		pthread_mutex_unlock(philo->fork[RIGHT]);
-		write_status(philo, THINKING);
 		while (!is_dead(philo))
 			;
 		return (true);
@@ -34,7 +34,7 @@ bool	is_dead(t_philo *philo)
 	dead = false;
 	pthread_mutex_lock(&philo->lock);
 	pthread_mutex_lock(&philo->table->finish_lock);
-	if (get_time() >= philo->death_t || philo->table->end_t == true)
+	if (get_time() >= philo->death_t || philo->table->end_t)
 	{
 		if (philo->table->end_t == false)
 			write_status(philo, DEATH);

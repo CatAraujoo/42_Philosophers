@@ -6,7 +6,7 @@
 /*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/17 11:26:23 by catarina          #+#    #+#             */
-/*   Updated: 2025/03/27 14:31:49 by cmatos-a         ###   ########.fr       */
+/*   Updated: 2025/03/28 12:32:05 by cmatos-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ long	valid_input(char *str)
 		if (input < 0)
 			ft_error("Input Error: Positive values only.");
 		else
-			ft_error("Input Error: If limit meals exists, should be above 0.");
+			ft_error("Input Error.");
 		return (-1);
 	}
 	return (input);

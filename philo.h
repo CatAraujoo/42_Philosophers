@@ -6,7 +6,7 @@
 /*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/17 11:44:14 by catarina          #+#    #+#             */
-/*   Updated: 2025/03/27 15:08:53 by cmatos-a         ###   ########.fr       */
+/*   Updated: 2025/03/28 13:42:25 by cmatos-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,8 +31,7 @@ typedef enum e_actions
 	EATING,
 	SLEEPING,
 	THINKING,
-	FORK_L,
-	FORK_R,
+	FORK,
 }			t_actions;
 
 enum e_forks

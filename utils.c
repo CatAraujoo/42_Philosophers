@@ -6,7 +6,7 @@
 /*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/27 11:31:55 by cmatos-a          #+#    #+#             */
-/*   Updated: 2025/03/27 15:28:05 by cmatos-a         ###   ########.fr       */
+/*   Updated: 2025/03/28 14:56:48 by cmatos-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,10 @@ void	*safe_malloc(size_t bytes)
 
 void	wait_time(t_philo *philo, long time)//disapear??
 {
+	//const long	start = get_time();
+
+	/*while (!is_dead(philo) && (get_time() - start) < time)
+		usleep(100);*/
 	if ((get_time() + time) >= philo->table->time_to_die)
 		usleep((philo->table->time_to_die - get_time()) * 1000);
 	else
@@ -54,21 +58,35 @@ void	ft_free(t_table *table)
 
 	if (!table)
 		return ;
+	if (table->threads)
+	{
+		i = 0;
+		while (i < table->n_philo)
+		{
+			pthread_detach(table->threads[i]);
+			i++;
+		}
+	}
+	if(table->forks)
+	{
+		i = 0;
+		while (i < table->n_philo)
+		{
+			pthread_mutex_destroy(&table->forks[i]);
+			i++;
+		}
+	}
 	i = 0;
 	while (i < table->n_philo)
 	{
-		pthread_mutex_destroy(&table->forks[i]);
 		pthread_mutex_destroy(&table->philos[i].lock);
 		i++;
 	}
-	pthread_mutex_destroy(&table->lock);
+	free(table->philos);
+	free(table->threads);
+	free(table->forks);
 	pthread_mutex_destroy(&table->log);
 	pthread_mutex_destroy(&table->finish_lock);
-	if (table->philos)
-		free(table->philos);
-	if (table->forks)
-		free(table->forks);
-	if (table->threads)
-		free(table->threads);
+	pthread_mutex_destroy(&table->lock);
 	free(table);
 }

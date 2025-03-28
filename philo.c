@@ -6,7 +6,7 @@
 /*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/27 09:51:24 by cmatos-a          #+#    #+#             */
-/*   Updated: 2025/03/27 14:32:18 by cmatos-a         ###   ########.fr       */
+/*   Updated: 2025/03/28 14:52:53 by cmatos-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,9 @@ int	main(int ac, char **av)
 		return (0);
 	}
 	table = ft_init(ac, av);
+	if (table == NULL)
+		ft_error("Error: Table initialization failed");
 	dinner_start(table);
 	ft_free(table);
+	return (0);
 }

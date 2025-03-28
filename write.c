@@ -6,7 +6,7 @@
 /*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/27 11:22:00 by cmatos-a          #+#    #+#             */
-/*   Updated: 2025/03/27 14:13:50 by cmatos-a         ###   ########.fr       */
+/*   Updated: 2025/03/28 15:10:47 by cmatos-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ void	write_status(t_philo *philo, t_actions action)
 		printf ("%ld %ld is sleeping\n", get_time() - philo->table->start_t, philo->philo_id);
 	else if (action == THINKING)
 		printf ("%ld %ld is thinking\n", get_time() - philo->table->start_t, philo->philo_id);
-	else if ((action == FORK_L || action == FORK_R)
+	else if ((action == FORK)
 			&& philo->table->end_t == false)
 		printf ("%ld %ld has taken a fork\n",
 			get_time() - philo->table->start_t, philo->philo_id);
