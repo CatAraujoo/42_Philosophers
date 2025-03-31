@@ -3,17 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   ft_init.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: catarina <catarina@student.42.fr>          +#+  +:+       +#+        */
+/*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/17 11:56:49 by catarina          #+#    #+#             */
-/*   Updated: 2025/03/31 11:13:33 by catarina         ###   ########.fr       */
+/*   Updated: 2025/03/31 13:56:09 by cmatos-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
-//the fork 0(philo-1) is from philo_id 1
-//every philo takes the left fork first
-//if odd first left, if even first right fork
 
 static void	assign_forks(t_table *table, int pos)
 {
@@ -46,7 +43,7 @@ static void	assign_forks(t_table *table, int pos)
 static void	philo_init(t_table *table)
 {
 	int		i;
-	
+
 	i = 0;
 	while (i < table->n_philo)
 	{
@@ -56,13 +53,10 @@ static void	philo_init(t_table *table)
 		table->philos[i].meals = 0;
 		table->philos[i].status = -1;
 		table->philos[i].death_t = table->time_to_die;
-		//table->philos[i].last_meal_t = get_time();
 		pthread_mutex_init(&table->philos[i].lock, NULL);
-		//pthread_mutex_init(&table->philos[i].fork_l->fork, NULL);
-		//pthread_mutex_init(&table->philos[i].fork_r->fork, NULL);
 		i++;
-		assign_forks(table, 0);
 	}
+	assign_forks(table, 0);
 }
 
 static t_table	*init_threads(t_table *table)
@@ -74,10 +68,7 @@ static t_table	*init_threads(t_table *table)
 	table->threads = safe_malloc(sizeof(pthread_t) * table->n_philo);
 	table->forks = safe_malloc(sizeof(pthread_mutex_t) * table->n_philo);
 	if (!table->forks || !table->threads)
-	{
-		//ft_free(table);
 		return (NULL);
-	}
 	pthread_mutex_init(&table->lock, NULL);
 	pthread_mutex_init(&table->log, NULL);
 	pthread_mutex_init(&table->finish_lock, NULL);
@@ -87,13 +78,13 @@ static t_table	*init_threads(t_table *table)
 		pthread_mutex_init(&table->forks[i], NULL);
 		i++;
 	}
-	return(table);
+	return (table);
 }
 
 t_table	*ft_init(int ac, char **av)
 {
 	t_table	*table;
-	
+
 	table = safe_malloc(sizeof(t_table));
 	table->n_philo = valid_input(av[1]);
 	table->time_to_die = valid_input(av[2]);
@@ -112,10 +103,7 @@ t_table	*ft_init(int ac, char **av)
 	table->start_t = 0;
 	table->philos = safe_malloc(sizeof(t_philo) * table->n_philo);
 	if (!table->philos)
-	{
-		//ft_free(table);
 		return (NULL);
-	}
 	table = init_threads(table);
 	philo_init(table);
 	return (table);

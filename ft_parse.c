@@ -6,7 +6,7 @@
 /*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/17 11:26:23 by catarina          #+#    #+#             */
-/*   Updated: 2025/03/28 12:32:05 by cmatos-a         ###   ########.fr       */
+/*   Updated: 2025/03/31 13:52:17 by cmatos-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,12 +36,12 @@ long	valid_input(char *str)
 	long	input;
 
 	input = ft_atol(str);
-	if (input > INT_MAX) //If the result is greater than INT_MAX, print error and flag the error
+	if (input > INT_MAX)
 	{
 		ft_error("Input Error: The value cannot be bigger than INT_MAX");
 		return (-1);
 	}
-	if (input < 1) //If not positive, print error and flag the error
+	if (input < 1)
 	{
 		if (input < 0)
 			ft_error("Input Error: Positive values only.");

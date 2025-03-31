@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: catarina <catarina@student.42.fr>          +#+  +:+       +#+        */
+/*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/17 11:44:14 by catarina          #+#    #+#             */
-/*   Updated: 2025/03/31 11:36:06 by catarina         ###   ########.fr       */
+/*   Updated: 2025/03/31 15:09:10 by cmatos-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,8 +45,7 @@ typedef struct s_philo
 	struct s_table		*table;
 	long				philo_id;
 	long				meals;
-	long 				death_t; //time of death
-	//long		last_meal_t; //time passed from last meal
+	long				death_t;
 	bool				philo_full;
 	t_actions			status;
 	t_mtx				lock;
@@ -55,20 +54,20 @@ typedef struct s_philo
 
 typedef struct s_table
 {
-	pthread_t	*threads; //array of all threads
-	t_philo		*philos; //array of all philos
-	t_mtx		*forks; //array of all forks
-	t_mtx		lock;//mutex for forks
-	t_mtx		log;//mutex for log
-	t_mtx		finish_lock;//mutex for finish
+	pthread_t	*threads;
+	t_philo		*philos;
+	t_mtx		*forks;
+	t_mtx		lock;
+	t_mtx		log;
+	t_mtx		finish_lock;
 	long		n_philo;
 	long		n_philos_full;
 	long		time_to_die;
 	long		time_to_eat;
 	long		time_to_sleep;
-	long		n_limit_meal; //[5] | flag if -1
+	long		n_limit_meal;
 	long		start_t;
-	bool		end_t; //a philo dies or all philos full
+	bool		end_t;
 }			t_table;
 
 int		dinner_start(t_table *table);
@@ -93,7 +92,5 @@ long	get_time(void);
 void	wait_time(t_philo *philo, long time);
 
 t_table	*ft_init(int ac, char **av);
-
-
 
 #endif

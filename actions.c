@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   actions.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: catarina <catarina@student.42.fr>          +#+  +:+       +#+        */
+/*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/27 11:00:59 by cmatos-a          #+#    #+#             */
-/*   Updated: 2025/03/31 11:38:00 by catarina         ###   ########.fr       */
+/*   Updated: 2025/03/31 13:57:40 by cmatos-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ void	ft_thinking(t_philo *philo)
 	{
 		philo->status = THINKING;
 		write_status(philo, philo->status);
-		wait_time(philo, 5);//5?
+		wait_time(philo, 5);
 	}
 }
 
@@ -65,9 +65,8 @@ void	ft_eating(t_philo *philo)
 	pthread_mutex_unlock(&philo->lock);
 	philo->status = EATING;
 	write_status(philo, philo->status);
-	//printf ("HELLLO");
 	philo->meals++;
-	wait_time(philo, philo->table->time_to_eat);// philo->table->time_to_sleep;
+	wait_time(philo, philo->table->time_to_eat);
 	pthread_mutex_unlock(philo->fork[LEFT]);
 	pthread_mutex_unlock(philo->fork[RIGHT]);
 }
