@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_init.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
+/*   By: catarina <catarina@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/17 11:56:49 by catarina          #+#    #+#             */
-/*   Updated: 2025/03/28 15:25:44 by cmatos-a         ###   ########.fr       */
+/*   Updated: 2025/03/31 11:13:33 by catarina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,7 +116,7 @@ t_table	*ft_init(int ac, char **av)
 		//ft_free(table);
 		return (NULL);
 	}
-	init_threads(table);
+	table = init_threads(table);
 	philo_init(table);
 	return (table);
 }

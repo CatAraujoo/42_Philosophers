@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   check_status.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
+/*   By: catarina <catarina@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/27 10:59:37 by cmatos-a          #+#    #+#             */
-/*   Updated: 2025/03/28 14:52:50 by cmatos-a         ###   ########.fr       */
+/*   Updated: 2025/03/31 11:19:36 by catarina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ bool	is_solo(t_philo *philo)
 	{
 		pthread_mutex_lock(philo->fork[RIGHT]);
 		write_status(philo, FORK);
-		usleep(philo->table->time_to_die * 100);
+		//usleep(philo->table->time_to_die * 100);
 		pthread_mutex_unlock(philo->fork[RIGHT]);
 		while (!is_dead(philo))
 			;
@@ -54,7 +54,7 @@ bool	is_dead(t_philo *philo)
 void	is_full(t_philo *philo)
 {
 	if (philo->meals >= philo->table->n_limit_meal
-			&& philo->table->n_limit_meal != 0 && philo->philo_full == false)
+			&& philo->table->n_limit_meal != 0 && (philo->philo_full == false))
 	{
 		philo->table->n_philos_full++;
 		philo->philo_full = true;

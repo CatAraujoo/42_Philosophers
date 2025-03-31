@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
+/*   By: catarina <catarina@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/17 11:44:14 by catarina          #+#    #+#             */
-/*   Updated: 2025/03/28 13:42:25 by cmatos-a         ###   ########.fr       */
+/*   Updated: 2025/03/31 11:36:06 by catarina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,31 +68,32 @@ typedef struct s_table
 	long		time_to_sleep;
 	long		n_limit_meal; //[5] | flag if -1
 	long		start_t;
-	/*long		n_threads_run;
-	bool		all_threads_ready;*/
 	bool		end_t; //a philo dies or all philos full
 }			t_table;
 
-int		handle_input(t_table *table, char **av);
-void	ft_error(char *error);
-void	ft_free(t_table *table);
-void	*safe_malloc(size_t bytes);
-
-long	ft_atol(char *s);
-long	valid_input(char *str);
-t_table	*ft_init(int ac, char **av);
-
-long	get_time(void);
-void	wait_time(t_philo *philo, long time);
-int	dinner_start(t_table *table);
+int		dinner_start(t_table *table);
 void	*dinner_simulation(void *data);
-
-void	write_status(t_philo *philo, t_actions action);
-bool	is_solo(t_philo *philo);
-bool	is_dead(t_philo *philo);
-void	is_full(t_philo *philo);
 void	ft_thinking(t_philo *philo);
 void	ft_eating(t_philo *philo);
 void	ft_sleeping(t_philo *philo);
+
+bool	is_solo(t_philo *philo);
+bool	is_dead(t_philo *philo);
+void	is_full(t_philo *philo);
+
+long	ft_atol(char *s);
+long	valid_input(char *str);
+
+void	ft_error(char *error);
+void	ft_free(t_table *table);
+void	*safe_malloc(size_t bytes);
+void	write_status(t_philo *philo, t_actions action);
+
+long	get_time(void);
+void	wait_time(t_philo *philo, long time);
+
+t_table	*ft_init(int ac, char **av);
+
+
 
 #endif
