@@ -3,16 +3,16 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+         #
+#    By: catarina <catarina@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/19 15:09:22 by cmatos-a          #+#    #+#              #
-#    Updated: 2025/03/31 13:35:39 by cmatos-a         ###   ########.fr        #
+#    Updated: 2025/05/13 14:46:26 by catarina         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = philo
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -g -fsanitize=thread
+CFLAGS = -Wall -Wextra -Werror -g #-fsanitize=thread
 
 SRC = philo.c \
 		dinner.c \

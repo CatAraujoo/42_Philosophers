@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
+/*   By: catarina <catarina@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/27 11:31:55 by cmatos-a          #+#    #+#             */
-/*   Updated: 2025/03/31 15:32:50 by cmatos-a         ###   ########.fr       */
+/*   Updated: 2025/05/13 16:06:24 by catarina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,20 +31,10 @@ void	*safe_malloc(size_t bytes)
 void	wait_time(t_philo *philo, long time)
 {
 	long	current_t;
-	long	end_time;
 
 	current_t = get_time();
-	end_time = current_t + time;
-	while ((current_t < end_time) && !is_dead(philo))
-	{
+	while (!is_dead(philo) && (get_time() - current_t < time))
 		usleep(1000);
-		current_t = get_time();
-	}
-	usleep(end_time - current_t);
-	/*while ((get_time() + time) < philo->table->time_to_die && !is_dead(philo))
-		usleep((philo->death_t - current_t) * 1000);
-	//else
-	usleep(time * 1000);*/
 }
 
 long	get_time(void)

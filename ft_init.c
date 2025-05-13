@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_init.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
+/*   By: catarina <catarina@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/17 11:56:49 by catarina          #+#    #+#             */
-/*   Updated: 2025/03/31 13:56:09 by cmatos-a         ###   ########.fr       */
+/*   Updated: 2025/05/13 15:17:32 by catarina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ static void	philo_init(t_table *table)
 
 static t_table	*init_threads(t_table *table)
 {
-	long	i;
+	int	i;
 
 	table->end_t = false;
 	table->n_philos_full = 0;

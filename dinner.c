@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   dinner.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
+/*   By: catarina <catarina@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/27 10:14:40 by cmatos-a          #+#    #+#             */
-/*   Updated: 2025/03/31 15:27:06 by cmatos-a         ###   ########.fr       */
+/*   Updated: 2025/05/13 16:06:58 by catarina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,13 +20,8 @@ void	*dinner_simulation(void *ptr)
 	pthread_mutex_lock(&philo->lock);
 	philo->death_t = philo->table->start_t + philo->table->time_to_die;
 	pthread_mutex_unlock(&philo->lock);
-	if (philo->philo_id % 2 == 0 && philo->philo_id == philo->table->n_philo)
-	{
+	if (philo->philo_id % 2 == 0 || philo->philo_id == philo->table->n_philo)
 		ft_thinking(philo);
-		usleep(100);
-	}
-	/*else
-		usleep(50);*/
 	if (is_solo(philo))
 		return (NULL);
 	while (!is_dead(philo))
